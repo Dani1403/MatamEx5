@@ -1,7 +1,26 @@
+import json
+import os
+from typing import Union
+
+# ----------------------------- Constants --------------------------- #
 LOWER_A = ord("a")
 UPPER_A = ord("A")
 ALPHABET_SIZE = ord("z") - ord("a") + 1
 
+CONFIG_FILE_NAME = ".json"
+CONFIG_KEY_TYPE = "type"
+CONFIG_KEY_MODE = "mode"
+CONFIG_KEY_KEY = "key"
+
+CONFIG_TYPE_CAESAR = "Caesar"
+CONFIG_TYPE_VIGENERE = "Vigenere"
+CONFIG_MODE_ENCRYPT = "encrypt"
+CONFIG_MODE_DECRYPT = "decrypt"
+
+TXT_EXTENSION = ".txt"
+ENC_EXTENSION = ".enc"
+
+# ------------------------ Caesar Cipher Class ----------------------- #
 class CaesarCipher:
 
     def __init__(self, shift: int):
@@ -23,7 +42,7 @@ class CaesarCipher:
         self.shift = -self.shift
         return decryptedStr
 
-
+# ------------------------ Vigenere Cipher Class --------------------- #
 class VigenereCipher:
 
     def __init__(self, keys: list):
@@ -47,6 +66,8 @@ class VigenereCipher:
         self.keys = [-num for num in self.keys]
         return decryptedStr
 
+# ---------------------- Global functions -------------------- #
+
 def getVigenereFromStr(keyString: str) -> VigenereCipher:
     keys = []
     for char in keyString:
@@ -54,9 +75,55 @@ def getVigenereFromStr(keyString: str) -> VigenereCipher:
             keys.append(ord(char) - (LOWER_A if char.islower() else UPPER_A))
     return VigenereCipher(keys)
 
-def processDirectory(dir_path: str) -> None:
+def getEncryptorFromDict(configDict: dict)-> Union[CaesarCipher, VigenereCipher]:
+    encryptionType = configDict[CONFIG_KEY_TYPE]
+    if type(encryptionType) != str:
+        raise TypeError("Encryption type should be string")
+    encryptionKey = configDict[CONFIG_KEY_KEY]
+    if (encryptionType == CONFIG_TYPE_CAESAR) :
+        if isinstance(encryptionKey, int):
+            return CaesarCipher(encryptionKey)
+        else:
+            raise TypeError("EncryptionKey for Caesar Cipher should be int")
+    elif (encryptionType == CONFIG_TYPE_VIGENERE):
+        if isinstance(encryptionKey, str):
+            return getVigenereFromStr(encryptionKey)
+        elif isinstance(encryptionKey, list):
+            return VigenereCipher(encryptionKey)
+        else:
+            raise TypeError("EncryptionKey for Vigenere Cipher should be string or list")
+    else:
+        raise ValueError(f"Invalid encryption Type, should be either Caesar or Vigenere but got {encryptionType}")
 
-    print("d")
+def processFile(filePath: str, encryptionMode: str, encryptor: Union[CaesarCipher, VigenereCipher]) -> None:    
+    basename, extension = os.path.splitext(filePath)
+    if encryptionMode == CONFIG_MODE_ENCRYPT:
+        if extension.lower() != TXT_EXTENSION:
+            return
+        outFile = f"{basename}{ENC_EXTENSION}"
+        with open(filePath, "rt") as plainTextFile:
+            content = encryptor.encrypt(plainTextFile.read())
+    elif encryptionMode == CONFIG_MODE_DECRYPT:
+        if extension.lower() != TXT_EXTENSION:
+            return
+        outFile = f"{basename}{ENC_EXTENSION}"
+        with open(filePath) as encryptedTextFile:
+            content = encryptor.decrypt(encryptedTextFile.read())
+    else:
+        raise ValueError(f"Encryption mode should be either decrypt or encrypt but got {encryptionMode}")
+    
+    with open(outFile, "wt") as resultFile:
+        resultFile.write(content)
+    
+
+
+def processDirectory(dir_path: str) -> None:
+    configPath = os.path.join(dir_path, CONFIG_FILE_NAME)
+    with open(configPath, "rt") as configFile:
+        configDict = json.load(configFile)
+    
+
+# Tests 
 caesar_cipher = CaesarCipher(3)
 print(caesar_cipher.encrypt('a'))
 print(caesar_cipher.encrypt('Mtm is the BEST!'))
