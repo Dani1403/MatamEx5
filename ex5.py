@@ -121,7 +121,11 @@ def processDirectory(dir_path: str) -> None:
     configPath = os.path.join(dir_path, CONFIG_FILE_NAME)
     with open(configPath, "rt") as configFile:
         configDict = json.load(configFile)
-    
+
+    for fileName in os.listdir(dir_path):
+        filePath = os.path.join(dir_path, fileName)
+        processFile(filePath, config[CONFIG_KEY_MODE], getEncryptorFromConfig(configDict))
+
 
 # Tests 
 caesar_cipher = CaesarCipher(3)
@@ -135,3 +139,12 @@ print(vigenere_cipher.decrypt("Igopj Xqupy! "))
 vigenere_from_str = getVigenereFromStr("python rules, C drools")
 print(vigenere_from_str.encrypt("JK, C is awesome"))
 print(vigenere_from_str.decrypt("YI, V pg nnydseg"))
+my_dict = {
+    "type" : "Caesar",
+    "mode" : "encrypt",
+    "key": 3
+    }
+caesar_cipher_dict = getEncryptorFromDict(my_dict)
+print(caesar_cipher_dict.encrypt('Mtm is the BEST!'))
+print(caesar_cipher_dict.decrypt("Pwp lv wkh EHVW!"))
+
