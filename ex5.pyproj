@@ -11,6 +11,10 @@
     <OutputPath>.</OutputPath>
     <Name>ex5</Name>
     <RootNamespace>ex5</RootNamespace>
+    <TestFramework>unittest</TestFramework>
+    <UnitTestPattern>test*.py</UnitTestPattern>
+    <UnitTestRootDirectory>.</UnitTestRootDirectory>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +26,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ex5.py" />
+    <Compile Include="testGetEncryptor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="testVigenere.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="testCaesar.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

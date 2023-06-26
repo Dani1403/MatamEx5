@@ -49,6 +49,8 @@ class VigenereCipher:
         self.keys = keys
 
     def encrypt(self, plainText: str) -> str:
+        if not self.keys :
+            return plainText
         index = 0
         encryptedStr = ""
         for char in plainText:
@@ -72,26 +74,29 @@ def getVigenereFromStr(keyString: str) -> VigenereCipher:
     keys = []
     for char in keyString:
         if char.isalpha():
-            keys.append(ord(char) - (LOWER_A if char.islower() else UPPER_A))
+            keys.append(ord(char) - (LOWER_A if char.islower() else UPPER_A - ALPHABET_SIZE))
     return VigenereCipher(keys)
 
 def getEncryptorFromDict(configDict: dict)-> Union[CaesarCipher, VigenereCipher]:
+
     encryptionType = configDict[CONFIG_KEY_TYPE]
     if type(encryptionType) != str:
         raise TypeError("Encryption type should be string")
     encryptionKey = configDict[CONFIG_KEY_KEY]
+    if encryptionKey is None:
+        raise TypeError("Encryption key is None")
     if (encryptionType == CONFIG_TYPE_CAESAR) :
         if isinstance(encryptionKey, int):
             return CaesarCipher(encryptionKey)
         else:
-            raise TypeError("EncryptionKey for Caesar Cipher should be int")
+            raise TypeError("Encryption key for Caesar Cipher should be int")
     elif (encryptionType == CONFIG_TYPE_VIGENERE):
         if isinstance(encryptionKey, str):
             return getVigenereFromStr(encryptionKey)
         elif isinstance(encryptionKey, list):
             return VigenereCipher(encryptionKey)
         else:
-            raise TypeError("EncryptionKey for Vigenere Cipher should be string or list")
+            raise TypeError("Encryption key for Vigenere Cipher should be string or list")
     else:
         raise ValueError(f"Invalid encryption Type, should be either Caesar or Vigenere but got {encryptionType}")
 
@@ -128,17 +133,6 @@ def processDirectory(dir_path: str) -> None:
 
 
 # Tests 
-caesar_cipher = CaesarCipher(3)
-print(caesar_cipher.encrypt('a'))
-print(caesar_cipher.encrypt('Mtm is the BEST!'))
-print(caesar_cipher.decrypt('d'))
-print(caesar_cipher.decrypt("Pwp lv wkh EHVW!"))
-vigenere_cipher = VigenereCipher([1,2,3,4,-5])
-print(vigenere_cipher.encrypt("Hello World! "))
-print(vigenere_cipher.decrypt("Igopj Xqupy! "))
-vigenere_from_str = getVigenereFromStr("python rules, C drools")
-print(vigenere_from_str.encrypt("JK, C is awesome"))
-print(vigenere_from_str.decrypt("YI, V pg nnydseg"))
 my_dict = {
     "type" : "Caesar",
     "mode" : "encrypt",
@@ -147,4 +141,12 @@ my_dict = {
 caesar_cipher_dict = getEncryptorFromDict(my_dict)
 print(caesar_cipher_dict.encrypt('Mtm is the BEST!'))
 print(caesar_cipher_dict.decrypt("Pwp lv wkh EHVW!"))
-
+my_dict["type"] = "Vigenere"
+my_dict["key"] = [1,2,3,4,-5]
+vigenere_cipher_dict = getEncryptorFromDict(my_dict)
+print(vigenere_cipher_dict.encrypt("Hello World! "))
+print(vigenere_cipher_dict.decrypt("Igopj Xqupy! "))
+my_dict["key"] = "python rules, C drools"
+vigenereCipher_dict = getEncryptorFromDict(my_dict)
+print(vigenereCipher_dict.encrypt("JK, C is awesome"))
+print(vigenereCipher_dict.decrypt("YI, V pg nnydseg"))
