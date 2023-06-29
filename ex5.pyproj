@@ -26,13 +26,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ex5.py" />
-    <Compile Include="testGetEncryptor.py">
+    <Compile Include="test_getEncryptor.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="testVigenere.py">
+    <Compile Include="test_processDirectory.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="testCaesar.py">
+    <Compile Include="test_Vigenere.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_Caesar.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_processFile.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

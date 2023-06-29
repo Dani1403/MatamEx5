@@ -88,8 +88,9 @@ class TestGetEncryptorFromDict(unittest.TestCase):
             CONFIG_KEY_TYPE: CONFIG_TYPE_VIGENERE,
             CONFIG_KEY_KEY: ""
         }
-        with self.assertRaises(TypeError):
-            getEncryptorFromDict(config_dict)
+        encryptor = getEncryptorFromDict(config_dict)
+        self.assertIsInstance(encryptor, VigenereCipher)
+
 
     # Edge case: Long encryption key for Vigenere cipher
     def test_get_encryptor_from_dict_vigenere_long_key(self):

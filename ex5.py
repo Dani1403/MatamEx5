@@ -83,8 +83,7 @@ def getEncryptorFromDict(configDict: dict)-> Union[CaesarCipher, VigenereCipher]
     if type(encryptionType) != str:
         raise TypeError("Encryption type should be string")
     encryptionKey = configDict[CONFIG_KEY_KEY]
-    if encryptionKey is None:
-        raise TypeError("Encryption key is None")
+
     if (encryptionType == CONFIG_TYPE_CAESAR) :
         if isinstance(encryptionKey, int):
             return CaesarCipher(encryptionKey)
@@ -100,7 +99,9 @@ def getEncryptorFromDict(configDict: dict)-> Union[CaesarCipher, VigenereCipher]
     else:
         raise ValueError(f"Invalid encryption Type, should be either Caesar or Vigenere but got {encryptionType}")
 
-def processFile(filePath: str, encryptionMode: str, encryptor: Union[CaesarCipher, VigenereCipher]) -> None:    
+def processFile(filePath: str, encryptionMode: str, encryptor: Union[CaesarCipher, VigenereCipher]) -> None:  
+    if encryptor is None:
+        raise TypeError("Encryptor is None")
     basename, extension = os.path.splitext(filePath)
     if encryptionMode == CONFIG_MODE_ENCRYPT:
         if extension.lower() != TXT_EXTENSION:
@@ -109,9 +110,9 @@ def processFile(filePath: str, encryptionMode: str, encryptor: Union[CaesarCiphe
         with open(filePath, "rt") as plainTextFile:
             content = encryptor.encrypt(plainTextFile.read())
     elif encryptionMode == CONFIG_MODE_DECRYPT:
-        if extension.lower() != TXT_EXTENSION:
+        if extension.lower() != ENC_EXTENSION:
             return
-        outFile = f"{basename}{ENC_EXTENSION}"
+        outFile = f"{basename}{TXT_EXTENSION}"
         with open(filePath) as encryptedTextFile:
             content = encryptor.decrypt(encryptedTextFile.read())
     else:
@@ -122,6 +123,7 @@ def processFile(filePath: str, encryptionMode: str, encryptor: Union[CaesarCiphe
     
 
 
+#TODO : raise Value Error  if dir_path is not directory, raise more exceptions...
 def processDirectory(dir_path: str) -> None:
     configPath = os.path.join(dir_path, CONFIG_FILE_NAME)
     with open(configPath, "rt") as configFile:
@@ -129,24 +131,4 @@ def processDirectory(dir_path: str) -> None:
 
     for fileName in os.listdir(dir_path):
         filePath = os.path.join(dir_path, fileName)
-        processFile(filePath, config[CONFIG_KEY_MODE], getEncryptorFromConfig(configDict))
-
-
-# Tests 
-my_dict = {
-    "type" : "Caesar",
-    "mode" : "encrypt",
-    "key": 3
-    }
-caesar_cipher_dict = getEncryptorFromDict(my_dict)
-print(caesar_cipher_dict.encrypt('Mtm is the BEST!'))
-print(caesar_cipher_dict.decrypt("Pwp lv wkh EHVW!"))
-my_dict["type"] = "Vigenere"
-my_dict["key"] = [1,2,3,4,-5]
-vigenere_cipher_dict = getEncryptorFromDict(my_dict)
-print(vigenere_cipher_dict.encrypt("Hello World! "))
-print(vigenere_cipher_dict.decrypt("Igopj Xqupy! "))
-my_dict["key"] = "python rules, C drools"
-vigenereCipher_dict = getEncryptorFromDict(my_dict)
-print(vigenereCipher_dict.encrypt("JK, C is awesome"))
-print(vigenereCipher_dict.decrypt("YI, V pg nnydseg"))
+        processFile(filePath, configDict[CONFIG_KEY_MODE], getEncryptorFromDict(configDict))
