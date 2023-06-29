@@ -20,6 +20,10 @@ CONFIG_MODE_DECRYPT = "decrypt"
 TXT_EXTENSION = ".txt"
 ENC_EXTENSION = ".enc"
 
+# Helper Function
+def offsetFromAscii(char: str) -> int:
+    return (LOWER_A if char.islower() else UPPER_A)
+
 # ------------------------ Caesar Cipher Class ----------------------- #
 class CaesarCipher:
 
@@ -30,8 +34,8 @@ class CaesarCipher:
         encryptedStr = ""
         for char in plainText:
             if char.isalpha():
-                position = ord(char) - (LOWER_A if char.islower() else UPPER_A)
-                encryptedStr += chr((position + self.shift) % ALPHABET_SIZE + (LOWER_A if char.islower() else UPPER_A))
+                position = ord(char) - offsetFromAscii(char)
+                encryptedStr += chr((position + self.shift) % ALPHABET_SIZE + offsetFromAscii(char))
             else:
                 encryptedStr += char
         return encryptedStr
@@ -55,8 +59,8 @@ class VigenereCipher:
         encryptedStr = ""
         for char in plainText:
             if char.isalpha():
-                position = ord(char) - (LOWER_A if char.islower() else UPPER_A)
-                encryptedStr += chr((position + self.keys[index]) % ALPHABET_SIZE + (LOWER_A if char.islower() else UPPER_A))
+                position = ord(char) - offsetFromAscii(char)
+                encryptedStr += chr((position + self.keys[index]) % ALPHABET_SIZE + offsetFromAscii(char))
                 index = (index + 1) % len(self.keys)
             else:
                 encryptedStr += char
@@ -74,7 +78,7 @@ def getVigenereFromStr(keyString: str) -> VigenereCipher:
     keys = []
     for char in keyString:
         if char.isalpha():
-            keys.append(ord(char) - (LOWER_A if char.islower() else UPPER_A - ALPHABET_SIZE))
+            keys.append(ord(char) - (offsetFromAscii(char) - ALPHABET_SIZE))
     return VigenereCipher(keys)
 
 def getEncryptorFromDict(configDict: dict)-> Union[CaesarCipher, VigenereCipher]:
